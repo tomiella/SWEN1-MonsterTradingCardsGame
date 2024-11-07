@@ -1,11 +1,12 @@
 package at.pranjic.server.http;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class Response {
 
     private HttpStatus status;
-    private HashMap<String, String> headers = new HashMap<>();
+    private final Map<String, String> headers = new HashMap<>();
     private String body;
 
     @Override
@@ -22,16 +23,12 @@ public class Response {
         this.status = status;
     }
 
-    public HashMap<String, String> getHeaders() {
+    public Map<String, String> getHeaders() {
         return headers;
     }
 
     public String getHeader(String name) {
         return headers.get(name);
-    }
-
-    public void setHeaders(HashMap<String, String> headers) {
-        this.headers = headers;
     }
 
     public void setHeader(String name, String value) {

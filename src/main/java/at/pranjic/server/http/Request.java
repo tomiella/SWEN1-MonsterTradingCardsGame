@@ -1,12 +1,13 @@
 package at.pranjic.server.http;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class Request {
 
     private HttpMethod method;
     private String path;
-    private HashMap<String, String> headers = new HashMap<>();
+    private final Map<String, String> headers = new HashMap<>();
     private String body;
 
 
@@ -30,7 +31,7 @@ public class Request {
         this.path = path;
     }
 
-    public HashMap<String, String> getHeaders() {
+    public Map<String, String> getHeaders() {
         return headers;
     }
 
