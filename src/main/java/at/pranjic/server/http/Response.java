@@ -9,12 +9,6 @@ public class Response {
     private final Map<String, String> headers = new HashMap<>();
     private String body;
 
-    @Override
-    public String toString() {
-        // TODO: make to string method
-        return "";
-    }
-
     public HttpStatus getStatus() {
         return status;
     }
