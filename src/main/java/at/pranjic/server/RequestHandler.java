@@ -27,7 +27,7 @@ public class RequestHandler {
             HttpRequestParser httpRequestParser = new HttpRequestParser();
             Request request = httpRequestParser.parse(http);
 
-            System.out.printf("%s %s %s\n", request.getMethod(), request.getPath(), LocalDateTime.now().toString());
+            System.out.printf("%s %s %s\n", LocalDateTime.now().toString(), request.getMethod(), request.getPath());
 
             Response response = this.application.handle(request);
 

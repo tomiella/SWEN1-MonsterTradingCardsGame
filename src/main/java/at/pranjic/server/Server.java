@@ -16,6 +16,8 @@ public class Server {
     public void start() {
         try {
             this.serverSocket = new ServerSocket(10001);
+
+            System.out.println("Server started on port 10001");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
