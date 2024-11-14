@@ -4,8 +4,23 @@ import at.pranjic.server.Application;
 import at.pranjic.server.http.HttpStatus;
 import at.pranjic.server.http.Request;
 import at.pranjic.server.http.Response;
+import at.pranjic.application.mtcg.controller.*;
 
 public class MonsterTradingCardsGameApplication implements Application {
+    private final UserController userController;
+    private final PackageController packageController;
+    private final CardController cardController;
+    private final GameController gameController;
+    private final TradeController tradeController;
+
+    public MonsterTradingCardsGameApplication() {
+        this.userController = new UserController();
+        this.packageController = new PackageController();
+        this.cardController = new CardController();
+        this.gameController = new GameController();
+        this.tradeController = new TradeController();
+    }
+
     @Override
     public Response handle(Request request) {
         switch (request.getPath()) {
