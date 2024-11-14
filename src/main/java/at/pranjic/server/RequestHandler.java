@@ -8,6 +8,7 @@ import at.pranjic.server.utils.HttpSocket;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.time.LocalDateTime;
 
 public class RequestHandler {
     private final Socket socket;
@@ -25,6 +26,8 @@ public class RequestHandler {
 
             HttpRequestParser httpRequestParser = new HttpRequestParser();
             Request request = httpRequestParser.parse(http);
+
+            System.out.printf("%s %s %s\n", request.getMethod(), request.getPath(), LocalDateTime.now().toString());
 
             Response response = this.application.handle(request);
 
