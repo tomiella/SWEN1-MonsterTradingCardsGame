@@ -9,6 +9,14 @@ public class Response {
     private final Map<String, String> headers = new HashMap<>();
     private String body;
 
+    public Response() {
+    }
+
+    public Response(HttpStatus status, String body) {
+        this.status = status;
+        this.body = body;
+    }
+
     public HttpStatus getStatus() {
         return status;
     }

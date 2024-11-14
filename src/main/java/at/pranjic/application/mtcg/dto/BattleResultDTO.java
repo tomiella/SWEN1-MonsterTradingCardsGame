@@ -1,4 +1,4 @@
 package at.pranjic.application.mtcg.dto;
 
-public class BatlleResultDTO {
+public class BattleResultDTO {
 }
