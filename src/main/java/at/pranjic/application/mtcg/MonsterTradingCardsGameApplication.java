@@ -1,5 +1,8 @@
 package at.pranjic.application.mtcg;
 
+import at.pranjic.application.mtcg.router.ControllerNotFoundException;
+import at.pranjic.application.mtcg.router.Route;
+import at.pranjic.application.mtcg.router.Router;
 import at.pranjic.server.Application;
 import at.pranjic.server.http.HttpMethod;
 import at.pranjic.server.http.HttpStatus;
@@ -9,37 +12,37 @@ import at.pranjic.application.mtcg.controller.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class MonsterTradingCardsGameApplication implements Application {
-    private final UserController userController;
-    private final PackageController packageController;
-    private final CardController cardController;
-    private final GameController gameController;
-    private final TradeController tradeController;
+
+    private final Router router = new Router();
 
     public MonsterTradingCardsGameApplication() {
-        this.userController = new UserController();
-        this.packageController = new PackageController();
-        this.cardController = new CardController();
-        this.gameController = new GameController();
-        this.tradeController = new TradeController();
+        setRoutes();
+    }
+
+    public void setRoutes() {
+        Controller userController = new UserController();
+        router.addRoute("/users", userController);
+        router.addRoute("/sessions", userController);
     }
 
     @Override
     public Response handle(Request request) {
         try {
-
             String path = request.getPath();
-            HttpMethod method = request.getMethod();
+
+            Controller c = router.getController(path);
+            return c.handle(request);
 
             // User-related routing
-            if (path.equals("/users") && method.equals(HttpMethod.POST)) {
-                return userController.registerUser(request);
-            } else if (path.startsWith("/users/") && method.equals(HttpMethod.GET)) {
-                return userController.getUser(request);
-            } else if (path.startsWith("/users/") && method.equals(HttpMethod.PUT)) {
-                return userController.updateUser(request);
-            } else if (path.equals("/sessions") && method.equals(HttpMethod.POST)) {
-                return userController.loginUser(request);
-            }
+//            if (path.equals("/users") && method.equals(HttpMethod.POST)) {
+//                return userController.registerUser(request);
+//            } else if (path.startsWith("/users/") && method.equals(HttpMethod.GET)) {
+//                return userController.getUser(request);
+//            } else if (path.startsWith("/users/") && method.equals(HttpMethod.PUT)) {
+//                return userController.updateUser(request);
+//            } else if (path.equals("/sessions") && method.equals(HttpMethod.POST)) {
+//                return userController.loginUser(request);
+//            }
 
             //        // Package-related routing
             //        else if (path.equals("/packages") && method.equals(HttpMethod.POST)) {
@@ -76,19 +79,16 @@ public class MonsterTradingCardsGameApplication implements Application {
             //        } else if (path.startsWith("/tradings/") && method.equals(HttpMethod.POST)) {
             //            return tradeController.executeTrade(request);
             //        }
-
-            // Return 404 Not Found if no route matche
-            Response response = new Response();
-            response.setStatus(HttpStatus.NOT_FOUND);
-            response.setBody("{\"error\": \"Path not found: %s\"}".formatted(path));
-            response.setHeader("Content-Type", "application/json");
-            return response;
-        } catch (JsonProcessingException e) {
-            return new Response(HttpStatus.BAD_REQUEST, "{\"error\": \"Malformed JSON\"}");
         } catch (Exception e) {
             Response response = new Response();
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             response.setBody("{\"error\": \"%s\"}".formatted(e.toString()));
+            response.setHeader("Content-Type", "application/json");
+            return response;
+        } catch (ControllerNotFoundException e) {
+            Response response = new Response();
+            response.setStatus(HttpStatus.NOT_FOUND);
+            response.setBody("{\"error\": \"Path not found: %s\"}".formatted(e.toString()));
             response.setHeader("Content-Type", "application/json");
             return response;
         }

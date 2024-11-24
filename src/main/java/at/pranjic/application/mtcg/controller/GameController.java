@@ -1,4 +1,11 @@
 package at.pranjic.application.mtcg.controller;
 
-public class GameController {
+import at.pranjic.server.http.Request;
+import at.pranjic.server.http.Response;
+
+public class GameController extends Controller {
+    @Override
+    public Response handle(Request request) {
+        return null;
+    }
 }

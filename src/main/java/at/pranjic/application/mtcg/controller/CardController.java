@@ -1,4 +1,11 @@
 package at.pranjic.application.mtcg.controller;
 
-public class CardController {
+import at.pranjic.server.http.Request;
+import at.pranjic.server.http.Response;
+
+public class CardController extends Controller {
+    @Override
+    public Response handle(Request request) {
+        return null;
+    }
 }

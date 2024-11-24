@@ -52,9 +52,7 @@ public class UserService {
         return false;
     }
 
-    public boolean checkAuth(String username, Request request) {
-        String token = request.getHeader("authorization");
-
+    public boolean checkAuth(String username, String token) {
         if (token == null || !token.startsWith("Bearer ")) {
             return false;
         }
@@ -62,9 +60,7 @@ public class UserService {
         return token.equals("Bearer %s-mtcgToken".formatted(username));
     }
 
-    public boolean isAdmin(Request request) {
-        String token = request.getHeader("authorization");
-
+    public boolean isAdmin(String token) {
         if (token == null || !token.startsWith("Bearer ")) {
             return false;
         }

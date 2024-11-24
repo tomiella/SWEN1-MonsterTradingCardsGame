@@ -37,6 +37,8 @@ public class RequestHandler {
             httpSocket.writeHttp(responseRaw);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } catch (Exception e) {
+            System.err.printf("%s %s\n", LocalDateTime.now().toString(), e.getMessage());
         }
     }
 }
