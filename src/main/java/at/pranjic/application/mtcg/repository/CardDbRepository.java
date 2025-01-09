@@ -35,11 +35,11 @@ public class CardDbRepository implements CardRepository {
     }
 
     @Override
-    public Optional<Card> findById(int cardId) {
+    public Optional<Card> findById(String cardId) {
         String sql = "SELECT * FROM cards WHERE id = ?";
         try (Connection conn = connectionPool.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, cardId);
+            stmt.setString(1, cardId);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 return Optional.of(mapResultSetToCard(rs));

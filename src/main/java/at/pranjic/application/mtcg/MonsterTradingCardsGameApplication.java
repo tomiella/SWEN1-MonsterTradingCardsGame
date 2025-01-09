@@ -5,10 +5,7 @@ import at.pranjic.application.mtcg.repository.*;
 import at.pranjic.application.mtcg.router.ControllerNotFoundException;
 import at.pranjic.application.mtcg.router.Route;
 import at.pranjic.application.mtcg.router.Router;
-import at.pranjic.application.mtcg.service.CardService;
-import at.pranjic.application.mtcg.service.DeckService;
-import at.pranjic.application.mtcg.service.PackageService;
-import at.pranjic.application.mtcg.service.UserService;
+import at.pranjic.application.mtcg.service.*;
 import at.pranjic.server.Application;
 import at.pranjic.server.http.HttpMethod;
 import at.pranjic.server.http.HttpStatus;
@@ -40,6 +37,15 @@ public class MonsterTradingCardsGameApplication implements Application {
         DeckRepository deckRepository = new DeckDbRepository(connectionPool);
         DeckService deckService = new DeckService(deckRepository, cardRepository, userRepository);
 
+        StatsRepository statsRepository = new StatsDbRepository(connectionPool);
+        StatsService statsService = new StatsService(statsRepository, userRepository);
+
+        ScoreboardRepository scoreboardRepository = new ScoreboardDbRepository(connectionPool);
+        ScoreboardService scoreboardService = new ScoreboardService(scoreboardRepository);
+
+        TradingRepository tradingRepository = new TradingDbRepository(connectionPool);
+        TradingService tradingService = new TradingService(tradingRepository, cardRepository);
+
         Controller userController = new UserController(userService);
         router.addRoute("/users", userController);
         router.addRoute("/sessions", userController);
@@ -54,13 +60,17 @@ public class MonsterTradingCardsGameApplication implements Application {
         Controller deckController = new DeckController(deckService);
         router.addRoute("/deck", deckController);
 
+        Controller statsController = new StatsController(statsService);
+        router.addRoute("/stats", statsController);
+
+        Controller scoreboardController = new ScoreboardController(scoreboardService);
+        router.addRoute("/scoreboard", scoreboardController);
+
         Controller gameController = new GameController();
-        router.addRoute("/stats", gameController);
-        router.addRoute("/scoreboard", gameController);
         router.addRoute("/battles", gameController);
 
-        Controller tradeController = new TradeController();
-        router.addRoute("/tradings", tradeController);
+        Controller tradingController = new TradingController(tradingService);
+        router.addRoute("/tradings", tradingController);
     }
 
     @Override

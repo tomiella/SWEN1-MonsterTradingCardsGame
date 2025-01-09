@@ -1,0 +1,52 @@
+package at.pranjic.application.mtcg.controller;
+
+import at.pranjic.application.mtcg.entity.UserStats;
+import at.pranjic.application.mtcg.service.ScoreboardService;
+import at.pranjic.server.http.HttpMethod;
+import at.pranjic.server.http.HttpStatus;
+import at.pranjic.server.http.Request;
+import at.pranjic.server.http.Response;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.List;
+
+public class ScoreboardController extends Controller {
+    private final ScoreboardService scoreboardService;
+    private final ObjectMapper mapper = new ObjectMapper();
+
+    public ScoreboardController(ScoreboardService scoreboardService) {
+        this.scoreboardService = scoreboardService;
+    }
+
+    @Override
+    public Response handle(Request request) throws JsonProcessingException {
+        String path = request.getPath();
+        HttpMethod method = request.getMethod();
+
+        // Card-related routing
+        if (path.equals("/scoreboard") && method.equals(HttpMethod.GET)) {
+            return getScoreboard(request);
+        }
+
+        Response response = new Response();
+        response.setStatus(HttpStatus.NOT_FOUND);
+        response.setBody("{\"error\": \"Path not found: %s\"}".formatted(path));
+        response.setHeader("Content-Type", "application/json");
+        return response;
+    }
+
+    private Response getScoreboard(Request request) throws JsonProcessingException {
+        String header = request.getHeader("authorization");
+        if (header.startsWith("Bearer ")) {
+            String token = header.substring("Bearer ".length());
+
+            String username = token.split("-")[0];
+
+            List<UserStats> scoreboard = scoreboardService.getScoreboard();
+            return new Response(HttpStatus.OK, mapper.writeValueAsString(scoreboard));
+        } else {
+            return new Response(HttpStatus.UNAUTHORIZED, "Access token is missing or invalid");
+        }
+    }
+}

@@ -59,10 +59,10 @@ CREATE TABLE IF NOT EXISTS package_cards
 );
 
 -- Trades table
-CREATE TABLE IF NOT EXISTS trades
+CREATE TABLE IF NOT EXISTS tradings
 (
     id                     SERIAL PRIMARY KEY,
-    offered_card_id        INT REFERENCES user_cards (id) ON DELETE CASCADE,
+    offered_card_id        int REFERENCES user_cards (id) ON DELETE CASCADE,
     requested_card_type    VARCHAR(10) CHECK (requested_card_type IN ('spell', 'monster')),
     requested_element_type VARCHAR(10) CHECK (requested_element_type IN ('fire', 'water', 'normal')),
     requested_min_damage   INT     DEFAULT 0,
