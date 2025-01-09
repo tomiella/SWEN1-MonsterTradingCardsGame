@@ -38,6 +38,19 @@ public class UserDbRepository implements UserRepository {
     }
 
     @Override
+    public void addCardToUser(long userId, String cardId) {
+        String sql = "INSERT INTO user_cards (user_id, card_id) VALUES (?, ?)";
+        try (Connection conn = connectionPool.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, userId);
+            stmt.setString(2, cardId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error adding card to user", e);
+        }
+    }
+
+    @Override
     public Optional<User> findById(Long id) {
         String sql = "SELECT * FROM users WHERE id = ?";
         try (Connection conn = connectionPool.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {

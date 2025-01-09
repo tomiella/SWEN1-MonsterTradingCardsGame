@@ -3,6 +3,7 @@ package at.pranjic.application.mtcg.controller;
 import at.pranjic.application.mtcg.entity.Card;
 import at.pranjic.application.mtcg.entity.CardInfo;
 import at.pranjic.application.mtcg.service.CardService;
+import at.pranjic.application.mtcg.service.UserService;
 import at.pranjic.server.http.HttpMethod;
 import at.pranjic.server.http.HttpStatus;
 import at.pranjic.server.http.Request;
@@ -44,11 +45,25 @@ public class PackageController extends Controller {
     }
 
     private Response acquirePackage(Request request) {
-        return null;
+        String header = request.getHeader("authorization");
+        if (header.startsWith("Bearer ")) {
+            String token = header.substring("Bearer ".length());
+
+            String username = token.split("-")[0];
+
+            packageService.acquirePackage(username);
+            return new Response(HttpStatus.CREATED, "Package acquired successfully");
+        } else {
+            return new Response(HttpStatus.UNAUTHORIZED, "Access token is missing or invalid");
+        }
     }
 
     private Response createPackage(Request request) throws JsonProcessingException {
-        // TODO: check for admin
+        String token = request.getHeader("authorization");
+        if (!UserService.checkAuth("admin", token)) {
+            return new Response(HttpStatus.UNAUTHORIZED, "Access token is missing or invalid");
+        }
+
         Package pkg = new Package(0);
         List<String> cards = new ArrayList<>();
         JsonNode jsonNode = toJsonNode(request.getBody());
@@ -67,6 +82,6 @@ public class PackageController extends Controller {
         }
 
         packageService.addPackage(pkg, cards);
-        return null;
+        return new Response(HttpStatus.CREATED, "Package created successfully");
     }
 }

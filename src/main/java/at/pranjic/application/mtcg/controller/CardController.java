@@ -1,23 +1,38 @@
 package at.pranjic.application.mtcg.controller;
 
+import at.pranjic.application.mtcg.dto.CardDTO;
+import at.pranjic.application.mtcg.entity.Card;
+import at.pranjic.application.mtcg.service.CardService;
 import at.pranjic.server.http.HttpMethod;
 import at.pranjic.server.http.HttpStatus;
 import at.pranjic.server.http.Request;
 import at.pranjic.server.http.Response;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class CardController extends Controller {
+    private final ObjectMapper mapper = new ObjectMapper();
+    private final CardService cardService;
+
+    public CardController(CardService cardService) {
+        this.cardService = cardService;
+    }
+
     @Override
     public Response handle(Request request) {
         String path = request.getPath();
         HttpMethod method = request.getMethod();
 
         // Card-related routing
-        if (path.equals("/cards") && method.equals(HttpMethod.GET)) {
-            return getCards(request);
-        } else if (path.equals("/deck") && method.equals(HttpMethod.GET)) {
-            return getDeck(request);
-        } else if (path.equals("/deck") && method.equals(HttpMethod.PUT)) {
-            return configureDeck(request);
+        try {
+            if (path.equals("/cards") && method.equals(HttpMethod.GET)) {
+                return getCards(request);
+            }
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
 
         Response response = new Response();
@@ -27,15 +42,17 @@ public class CardController extends Controller {
         return response;
     }
 
-    private Response configureDeck(Request request) {
-        return null;
-    }
+    private Response getCards(Request request) throws JsonProcessingException {
+        String header = request.getHeader("authorization");
+        if (header.startsWith("Bearer ")) {
+            String token = header.substring("Bearer ".length());
 
-    private Response getDeck(Request request) {
-        return null;
-    }
+            String username = token.split("-")[0];
 
-    private Response getCards(Request request) {
-        return null;
+            List<CardDTO> cards = cardService.getAllCardsByUserId(username).stream().map(card -> new CardDTO(card.getId(), card.getName(), card.getDamage())).collect(Collectors.toList());
+            return new Response(HttpStatus.OK, mapper.writeValueAsString(cards));
+        } else {
+            return new Response(HttpStatus.UNAUTHORIZED, "Access token is missing or invalid");
+        }
     }
 }

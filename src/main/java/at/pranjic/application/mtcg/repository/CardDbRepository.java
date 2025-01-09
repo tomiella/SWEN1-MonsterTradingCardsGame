@@ -51,6 +51,27 @@ public class CardDbRepository implements CardRepository {
     }
 
     @Override
+    public List<Card> findAllByUserId(long userId) {
+        String sql = "SELECT c.id, c.name, c.damage, c.element_type, c.card_type " +
+                "FROM user_cards uc " +
+                "JOIN cards c ON uc.card_id = c.id " +
+                "WHERE uc.user_id = ?";
+        List<Card> cards = new ArrayList<>();
+        try (Connection conn = connectionPool.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, userId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    cards.add(mapResultSetToCard(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching cards for user", e);
+        }
+        return cards;
+    }
+
+    @Override
     public List<Card> findAll() {
         String sql = "SELECT * FROM cards";
         List<Card> cards = new ArrayList<>();
@@ -66,7 +87,25 @@ public class CardDbRepository implements CardRepository {
         return cards;
     }
 
-    private Card mapResultSetToCard(ResultSet rs) throws SQLException {
+    @Override
+    public boolean isCardOwnedByUser(long userId, String cardId) {
+        String sql = "SELECT COUNT(*) AS count FROM user_cards WHERE user_id = ? AND card_id = ?";
+        try (Connection conn = connectionPool.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, userId);
+            stmt.setString(2, cardId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("count") > 0;
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error checking card ownership", e);
+        }
+        return false;
+    }
+
+    public static Card mapResultSetToCard(ResultSet rs) throws SQLException {
         Card cardObj = new Card();
         cardObj.setId(rs.getString("id"));
         cardObj.setDamage(rs.getInt("damage"));

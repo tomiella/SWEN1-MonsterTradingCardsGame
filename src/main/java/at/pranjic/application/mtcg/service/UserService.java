@@ -52,7 +52,7 @@ public class UserService {
         return false;
     }
 
-    public boolean checkAuth(String username, String token) {
+    public static boolean checkAuth(String username, String token) {
         if (token == null || !token.startsWith("Bearer ")) {
             return false;
         }

@@ -11,4 +11,5 @@ public interface UserRepository {
     Optional<User> findByUsername(String username);
     void update(User user);
     void delete(Long id);
+    void addCardToUser(long userId, String cardId);
 }

@@ -1,5 +1,6 @@
 package at.pranjic.application.mtcg.repository;
 
+import at.pranjic.application.mtcg.entity.Card;
 import at.pranjic.application.mtcg.entity.Package;
 import at.pranjic.application.mtcg.data.ConnectionPool;
 
@@ -7,6 +8,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static at.pranjic.application.mtcg.repository.CardDbRepository.mapResultSetToCard;
 
 public class PackageDbRepository implements PackageRepository {
     private final ConnectionPool connectionPool;
@@ -63,6 +66,28 @@ public class PackageDbRepository implements PackageRepository {
             }
         }
     }
+
+    @Override
+    public List<Card> getCardsInPackage(int packageId) {
+        String sql = "SELECT c.id, c.name, c.damage, c.element_type, c.card_type " +
+                "FROM package_cards pc " +
+                "JOIN cards c ON pc.card_id = c.id " +
+                "WHERE pc.package_id = ?";
+        List<Card> cards = new ArrayList<>();
+        try (Connection conn = connectionPool.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, packageId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    cards.add(mapResultSetToCard(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching cards in package", e);
+        }
+        return cards;
+    }
+
 
     @Override
     public Optional<Package> findById(int packageId) {

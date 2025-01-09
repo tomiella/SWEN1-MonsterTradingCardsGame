@@ -7,7 +7,9 @@ import java.util.Optional;
 
 public interface CardRepository {
     void save(Card card);
+    List<Card> findAllByUserId(long userId);
     Optional<Card> findById(int cardId);
     List<Card> findAll();
+    boolean isCardOwnedByUser(long userId, String cardId);
 }
 
