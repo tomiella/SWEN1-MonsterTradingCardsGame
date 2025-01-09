@@ -1,0 +1,15 @@
+@startuml
+skinparam style strictuml
+
+package "Monster Trading Card Game (MTCG)" {
+    [Controller Layer]
+    [Service Layer]
+    [Repository Layer]
+    [Entity Classes]
+
+    [Controller Layer] --> [Service Layer] : Delegates User Requests
+    [Service Layer] --> [Repository Layer] : Access User Data
+    [Service Layer] --> [Entity Classes] : Uses User Models
+}
+
+@enduml

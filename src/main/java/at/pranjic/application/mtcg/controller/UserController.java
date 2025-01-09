@@ -15,7 +15,11 @@ import java.util.Optional;
 
 public class UserController extends Controller {
     private final ObjectMapper mapper = new ObjectMapper();
-    private final UserService userService = new UserService();
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @Override
     public Response handle(Request request) {

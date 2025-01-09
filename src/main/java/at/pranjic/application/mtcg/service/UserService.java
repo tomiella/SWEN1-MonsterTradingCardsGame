@@ -2,16 +2,16 @@ package at.pranjic.application.mtcg.service;
 
 import at.pranjic.application.mtcg.dto.UserDTO;
 import at.pranjic.application.mtcg.entity.User;
-import at.pranjic.application.mtcg.repository.UserMemoryRepository;
 import at.pranjic.application.mtcg.repository.UserRepository;
-import at.pranjic.server.http.HttpStatus;
-import at.pranjic.server.http.Request;
-import at.pranjic.server.http.Response;
 
 import java.util.Optional;
 
 public class UserService {
-    private UserRepository userRepository = new UserMemoryRepository();
+    private UserRepository userRepository;
+
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     public boolean registerUser(User user) {
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {

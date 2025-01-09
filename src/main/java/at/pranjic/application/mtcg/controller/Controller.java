@@ -6,11 +6,12 @@ import at.pranjic.server.http.HttpStatus;
 import at.pranjic.server.http.Request;
 import at.pranjic.server.http.Response;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public abstract class Controller {
-    public abstract Response handle(Request request);
+    public abstract Response handle(Request request) throws JsonProcessingException;
 
     private final ObjectMapper objectMapper;
 
@@ -27,6 +28,10 @@ public abstract class Controller {
         } catch (JsonProcessingException e) {
             throw new InvalidBodyException(e);
         }
+    }
+
+    protected JsonNode toJsonNode(String body) throws JsonProcessingException {
+        return this.objectMapper.readTree(body);
     }
 
     protected Response json(HttpStatus status, Object object) {
