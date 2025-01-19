@@ -4,7 +4,6 @@ import at.pranjic.application.mtcg.entity.Battle;
 import at.pranjic.application.mtcg.entity.Card;
 import at.pranjic.application.mtcg.entity.CardInfo;
 import at.pranjic.application.mtcg.entity.User;
-import at.pranjic.application.mtcg.repository.CardRepository;
 import at.pranjic.application.mtcg.repository.DeckRepository;
 import at.pranjic.application.mtcg.repository.GameRepository;
 import at.pranjic.application.mtcg.repository.UserRepository;
@@ -45,59 +44,60 @@ public class GameService {
 
     public String startBattle(String username) {
         Optional<User> optionalUser = userRepository.findByUsername(username);
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
+        if (optionalUser.isEmpty()) {
+            throw new RuntimeException("User not valid");
+        }
 
+        User user = optionalUser.get();
+
+        synchronized (queue) {
             try {
-                if ((player1 != null && Objects.equals(user.getId(), player1.getId())) || (player2 != null && Objects.equals(user.getId(), player2.getId()))) {
+                if ((player1 != null && Objects.equals(user.getId(), player1.getId())) ||
+                        (player2 != null && Objects.equals(user.getId(), player2.getId()))) {
                     throw new RuntimeException("User already started");
                 }
 
                 if (player1 == null) {
                     player1 = user;
+                    System.out.println("Player 1 joined: " + username);
+                    queue.wait();  // Player 1 waits for Player 2 to join
                 } else if (player2 == null) {
                     player2 = user;
+                    System.out.println("Player 2 joined: " + username);
+                    queue.notifyAll();  // Notify Player 1 that Player 2 has joined
                 }
 
-                System.out.println("User started");
                 if (player2 == null) {
-                    synchronized (queue) {
-                        while (player2 == null) {
-                            System.out.println("Waiting for queue");
-                            queue.wait();
-                        }
+                    while (player2 == null) {
+                        System.out.println("Waiting for Player 2...");
+                        queue.wait();
                     }
                 }
-
-                this.running = true;
 
                 if (player2.getId() == user.getId()) {
-                    synchronized (queue) {
-                        while (running) {
-                            System.out.println("Waiting for battle finish");
-                            queue.wait();
-                        }
-                        System.out.println("Battle finished");
-                        return log.toString();
+                    while (running) {
+                        System.out.println("Waiting for Player 1 to finish battle...");
+                        queue.wait();
                     }
+                    System.out.println("Battle finished for Player 2");
+                    return log.toString();
                 }
 
-                log.append("Player %s and Player %s battle started%n".formatted(player1.getUsername(), player2.getUsername()));
+                running = true;
+                log.append(String.format("Player %s and Player %s battle started%n", player1.getUsername(), player2.getUsername()));
 
                 this.executeBattle();
-                this.running = false;
 
-                synchronized (queue) {
-                    queue.notifyAll();
-                }
+                running = false;
+                queue.notifyAll();  // Notify Player 2 that the battle is over
 
                 return log.toString();
+
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                Thread.currentThread().interrupt();
+                throw new RuntimeException("Thread was interrupted", e);
             }
         }
-
-        throw new RuntimeException("User not valid");
     }
 
     public void executeBattle() {
@@ -152,11 +152,15 @@ public class GameService {
             player2.setElo(player2.getElo() - 5);
             player1.setWins(player1.getWins() + 1);
             player2.setLosses(player2.getLosses() + 1);
+            player1.setCoins(player1.getCoins() + 2);
+            if (player2.getCoins() > 0) player2.setCoins(player2.getCoins() - 1);
         } else if (winner.getId() == player2.getId()) {
             player1.setElo(player1.getElo() - 5);
             player2.setElo(player2.getElo() + 3);
             player2.setWins(player2.getWins() + 1);
             player1.setLosses(player1.getLosses() + 1);
+            player2.setCoins(player2.getCoins() + 2);
+            if (player1.getCoins() > 0) player1.setCoins(player1.getCoins() - 1);
         }
 
         userRepository.update(player1);
@@ -191,7 +195,7 @@ public class GameService {
         return null;
     }
 
-    private double spellDamage(Card card, String card2Element) {
+    public double spellDamage(Card card, String card2Element) {
         if (card.getElementType() == card2Element) {
             return card.getDamage();
         }
@@ -203,7 +207,7 @@ public class GameService {
             return (double) card.getDamage() / 2;
         }
 
-        if (card.getElementType() == "fire" && card2Element == "normal") {
+        if (card.getElementType() == "fire" && card2Element == "regular") {
             return card.getDamage() * 2;
         }
         if (card.getElementType() == "fire" && card2Element == "water") {
@@ -220,7 +224,7 @@ public class GameService {
         return 0;
     }
 
-    private boolean damageExceptions(Card card1, Card card2) {
+    public boolean damageExceptions(Card card1, Card card2) {
         if (card1.getName().contains("Goblin") && card2.getInfo() == CardInfo.DRAGON) {
             return false;
         }

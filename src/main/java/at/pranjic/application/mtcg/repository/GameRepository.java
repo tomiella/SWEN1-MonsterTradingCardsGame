@@ -8,5 +8,5 @@ public interface GameRepository {
     void createBattle(Battle battle);
     Optional<Battle> getBattleById(int battleId);
     List<Battle> getAllBattles();
-    List<Battle> getBattlesByUserId(int userId);
+    List<Battle> getBattlesByUserId(long userId);
 }

@@ -19,4 +19,3 @@ public class StatsService {
         return statsRepository.getUserStats(user.getId());
     }
 }
-

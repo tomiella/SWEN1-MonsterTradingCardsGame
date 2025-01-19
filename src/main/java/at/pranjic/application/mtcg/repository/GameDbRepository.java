@@ -71,13 +71,13 @@ public class GameDbRepository implements GameRepository {
     }
 
     @Override
-    public List<Battle> getBattlesByUserId(int userId) {
+    public List<Battle> getBattlesByUserId(long userId) {
         String sql = "SELECT * FROM battles WHERE player1_id = ? OR player2_id = ?";
         List<Battle> battles = new ArrayList<>();
         try (Connection conn = connectionPool.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, userId);
-            stmt.setInt(2, userId);
+            stmt.setLong(1, userId);
+            stmt.setLong(2, userId);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     battles.add(mapResultSetToBattle(rs));
