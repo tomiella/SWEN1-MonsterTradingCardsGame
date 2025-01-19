@@ -93,7 +93,7 @@ Als einzigartigest Feature hab ich mir überlegt, dass User sich coins verdienen
 
 Der Quellcode des Projekts ist auf GitHub verfügbar:
 
-[GitHub Repository Link](https://github.com/tomiella/SWEN1-MonsterTradingCardsGame)
+[GitHub Repository Link]([https://github.com/tomiella/SWEN1-MonsterTradingCardsGame](https://github.com/tomiella/SWEN1-MonsterTradingCardsGame/commit/d64913ed349646be0985cf149714ead275c320ac))
 
 ---
 
