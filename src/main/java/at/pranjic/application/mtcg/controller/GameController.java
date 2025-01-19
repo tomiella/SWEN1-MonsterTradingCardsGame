@@ -1,22 +1,26 @@
 package at.pranjic.application.mtcg.controller;
 
+import at.pranjic.application.mtcg.service.GameService;
+import at.pranjic.application.mtcg.service.UserService;
 import at.pranjic.server.http.HttpMethod;
 import at.pranjic.server.http.HttpStatus;
 import at.pranjic.server.http.Request;
 import at.pranjic.server.http.Response;
 
 public class GameController extends Controller {
+    GameService gameService;
+
+    public GameController(GameService gameService) {
+        this.gameService = gameService;
+    }
+
     @Override
     public Response handle(Request request) {
         String path = request.getPath();
         HttpMethod method = request.getMethod();
 
         // Game-related routing
-        if (path.equals("/stats") && method.equals(HttpMethod.GET)) {
-            return getUserStats(request);
-        } else if (path.equals("/scoreboard") && method.equals(HttpMethod.GET)) {
-            return getScoreboard(request);
-        } else if (path.equals("/battles") && method.equals(HttpMethod.POST)) {
+        if (path.equals("/battles") && method.equals(HttpMethod.POST)) {
             return startBattle(request);
         }
 
@@ -28,14 +32,21 @@ public class GameController extends Controller {
     }
 
     private Response startBattle(Request request) {
-        return null;
-    }
+        String header = request.getHeader("authorization");
+        if (header != null && header.startsWith("Bearer ")) {
+            String token = header.substring("Bearer ".length());
 
-    private Response getScoreboard(Request request) {
-        return null;
-    }
+            String username = token.split("-")[0];
 
-    private Response getUserStats(Request request) {
-        return null;
+            if (!UserService.checkAuth(username, header)) {
+                return new Response(HttpStatus.UNAUTHORIZED, "Access token is missing or invalid");
+            }
+
+            String log = gameService.startBattle(username);
+            System.out.println(log);
+            return new Response(HttpStatus.OK, log);
+        } else {
+            return new Response(HttpStatus.UNAUTHORIZED, "Access token is missing or invalid");
+        }
     }
 }

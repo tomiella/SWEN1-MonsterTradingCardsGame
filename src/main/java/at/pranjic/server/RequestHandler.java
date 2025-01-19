@@ -10,13 +10,17 @@ import java.io.IOException;
 import java.net.Socket;
 import java.time.LocalDateTime;
 
-public class RequestHandler {
+public class RequestHandler implements Runnable {
     private final Socket socket;
     private final Application application;
 
     public RequestHandler(Socket socket, Application application) {
         this.socket = socket;
         this.application = application;
+    }
+
+    public void run() {
+        this.handle();
     }
 
     public void handle() {

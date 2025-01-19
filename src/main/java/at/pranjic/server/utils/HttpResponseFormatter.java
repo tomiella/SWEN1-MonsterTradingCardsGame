@@ -32,7 +32,9 @@ public class HttpResponseFormatter {
 
         responseString.append("\r\n");
 
-        responseString.append(response.getBody());
+        if (response.getBody() != null) {
+            responseString.append(response.getBody());
+        }
 
         responseString.append("\r\n");
 

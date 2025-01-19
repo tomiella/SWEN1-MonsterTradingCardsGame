@@ -1,6 +1,8 @@
 package at.pranjic.application.mtcg.service;
 
 import at.pranjic.application.mtcg.entity.Card;
+import at.pranjic.application.mtcg.exceptions.NoPackagesAvailableException;
+import at.pranjic.application.mtcg.exceptions.NotEnoughMoneyException;
 import at.pranjic.application.mtcg.repository.PackageRepository;
 import at.pranjic.application.mtcg.entity.Package;
 import at.pranjic.application.mtcg.repository.UserRepository;
@@ -28,12 +30,12 @@ public class PackageService {
         var user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
         if (user.getCoins() < 5) {
-            throw new IllegalArgumentException("Not enough coins to acquire a package.");
+            throw new NotEnoughMoneyException("Not enough money");
         }
 
         Package pkg = packageRepository.findAll().stream()
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException("No packages available for acquisition"));
+                .orElseThrow(() -> new NoPackagesAvailableException("No packages available"));
 
         user.setCoins(user.getCoins() - 5);
         userRepository.update(user);

@@ -2,6 +2,8 @@ package at.pranjic.application.mtcg.controller;
 
 import at.pranjic.application.mtcg.entity.Card;
 import at.pranjic.application.mtcg.entity.CardInfo;
+import at.pranjic.application.mtcg.exceptions.NoPackagesAvailableException;
+import at.pranjic.application.mtcg.exceptions.NotEnoughMoneyException;
 import at.pranjic.application.mtcg.service.CardService;
 import at.pranjic.application.mtcg.service.UserService;
 import at.pranjic.server.http.HttpMethod;
@@ -46,13 +48,21 @@ public class PackageController extends Controller {
 
     private Response acquirePackage(Request request) {
         String header = request.getHeader("authorization");
-        if (header.startsWith("Bearer ")) {
+        if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring("Bearer ".length());
 
             String username = token.split("-")[0];
 
-            packageService.acquirePackage(username);
-            return new Response(HttpStatus.CREATED, "Package acquired successfully");
+            if (!UserService.checkAuth(username, header)) {
+                return new Response(HttpStatus.UNAUTHORIZED, "Access token is missing or invalid");
+            }
+
+            try {
+                packageService.acquirePackage(username);
+            } catch (NotEnoughMoneyException | NoPackagesAvailableException e) {
+                return new Response(HttpStatus.BAD_REQUEST, e.getMessage());
+            }
+            return new Response(HttpStatus.CREATED, null);
         } else {
             return new Response(HttpStatus.UNAUTHORIZED, "Access token is missing or invalid");
         }
@@ -82,6 +92,6 @@ public class PackageController extends Controller {
         }
 
         packageService.addPackage(pkg, cards);
-        return new Response(HttpStatus.CREATED, "Package created successfully");
+        return new Response(HttpStatus.CREATED, null);
     }
 }

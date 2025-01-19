@@ -16,7 +16,11 @@ public class UserDTO {
     @JsonProperty("Image")
     private String image;
 
-    public UserDTO() {}
+    public UserDTO(String username, String bio, String image) {
+        this.username = username;
+        this.bio = bio;
+        this.image = image;
+    }
 
     public UserDTO(String username, User user) {
         this.username = username;

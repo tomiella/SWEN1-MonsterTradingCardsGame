@@ -52,7 +52,7 @@ public class UserController extends Controller {
 
         boolean success = userService.registerUser(user);
         if (success) {
-            return new Response(HttpStatus.CREATED, "User registered successfully");
+            return new Response(HttpStatus.CREATED, null);
         }
         return new Response(HttpStatus.CONFLICT, "User already exists");
     }
@@ -68,7 +68,7 @@ public class UserController extends Controller {
 
         Optional<String> token = userService.loginUser(username, password);
         if (token.isEmpty()) {
-            return new Response(HttpStatus.UNAUTHORIZED, "Invalid username or password");
+            return new Response(HttpStatus.UNAUTHORIZED, "Login failed");
         }
         return new Response(HttpStatus.OK, token.get());
     }
@@ -94,7 +94,7 @@ public class UserController extends Controller {
         Optional<UserDTO> userDTO = userService.getUser(username);
 
         if (userDTO.isPresent()) {
-            return json(HttpStatus.OK, userDTO);
+            return json(HttpStatus.OK, userDTO.get());
         }
         return new Response(HttpStatus.NOT_FOUND, "User not found");
     }
@@ -121,7 +121,7 @@ public class UserController extends Controller {
 
         boolean success = userService.updateUser(username, user);
         if (success) {
-            return new Response(HttpStatus.OK, "User updated successfully");
+            return new Response(HttpStatus.OK, null);
         }
         return new Response(HttpStatus.NOT_FOUND, "User not found");
     }

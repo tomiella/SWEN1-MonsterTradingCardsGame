@@ -86,13 +86,17 @@ public class UserDbRepository implements UserRepository {
 
     @Override
     public void update(User user) {
-        String sql = "UPDATE users SET username = ?, password = ?, coins = ?, elo = ? WHERE id = ?";
+        String sql = "UPDATE users SET coins = ?, elo = ?, games_played = ?, wins = ?, losses = ?, name = ?, bio = ?, image = ? WHERE id = ?";
         try (Connection conn = connectionPool.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, user.getUsername());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setInt(3, user.getCoins());
-            pstmt.setInt(4, user.getElo());
-            pstmt.setLong(5, user.getId());
+            pstmt.setInt(1, user.getCoins());
+            pstmt.setInt(2, user.getElo());
+            pstmt.setInt(3, user.getGames_played());
+            pstmt.setInt(4, user.getWins());
+            pstmt.setInt(5, user.getLosses());
+            pstmt.setString(6, user.getName());
+            pstmt.setString(7, user.getBio());
+            pstmt.setString(8, user.getImage());
+            pstmt.setLong(9, user.getId());
             pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -117,6 +121,12 @@ public class UserDbRepository implements UserRepository {
         user.setPassword(rs.getString("password"));
         user.setCoins(rs.getInt("coins"));
         user.setElo(rs.getInt("elo"));
+        user.setGames_played(rs.getInt("games_played"));
+        user.setWins(rs.getInt("wins"));
+        user.setLosses(rs.getInt("losses"));
+        user.setName(rs.getString("name"));
+        user.setBio(rs.getString("bio"));
+        user.setImage(rs.getString("image"));
         // Map other fields as necessary
         return user;
     }

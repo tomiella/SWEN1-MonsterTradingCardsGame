@@ -20,8 +20,8 @@ public class TradingService {
     }
 
     public void createTradingDeal(TradingDealDTO tradingDeal) {
-        CardInfo info = CardInfo.fromDisplayName(tradingDeal.getCardToTrade());
-        TradingDeal newTradingDeal = new TradingDeal(tradingDeal.getId(), tradingDeal.getCardToTrade(), info.getType(), info.getElement(), tradingDeal.getMinimumDamage(), 1L, false);
+
+        TradingDeal newTradingDeal = new TradingDeal(tradingDeal.getId(), tradingDeal.getCardToTrade(), tradingDeal.getType(), tradingDeal.getMinimumDamage(), 1);
 
         tradingRepository.createTradingDeal(newTradingDeal);
     }
@@ -30,12 +30,12 @@ public class TradingService {
         return tradingRepository.getAllTradingDeals();
     }
 
-    public TradingDeal getTradingDealById(String tradingDealId) {
+    public TradingDeal getTradingDealById(int tradingDealId) {
         return tradingRepository.getTradingDealById(tradingDealId)
                 .orElseThrow(() -> new IllegalArgumentException("Trading deal not found"));
     }
 
-    public void deleteTradingDeal(String tradingDealId) {
+    public void deleteTradingDeal(int tradingDealId) {
         tradingRepository.deleteTradingDeal(tradingDealId);
     }
 }

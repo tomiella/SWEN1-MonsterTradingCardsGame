@@ -8,6 +8,6 @@ import java.util.Optional;
 public interface TradingRepository {
     void createTradingDeal(TradingDeal tradingDeal);
     List<TradingDeal> getAllTradingDeals();
-    Optional<TradingDeal> getTradingDealById(String tradingDealId);
-    void deleteTradingDeal(String tradingDealId);
+    Optional<TradingDeal> getTradingDealById(int tradingDealId);
+    void deleteTradingDeal(int tradingDealId);
 }

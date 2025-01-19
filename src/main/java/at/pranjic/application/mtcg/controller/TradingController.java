@@ -4,6 +4,7 @@ import at.pranjic.application.mtcg.dto.CardDTO;
 import at.pranjic.application.mtcg.dto.TradingDealDTO;
 import at.pranjic.application.mtcg.entity.TradingDeal;
 import at.pranjic.application.mtcg.service.TradingService;
+import at.pranjic.application.mtcg.service.UserService;
 import at.pranjic.server.http.HttpMethod;
 import at.pranjic.server.http.HttpStatus;
 import at.pranjic.server.http.Request;
@@ -31,7 +32,7 @@ public class TradingController extends Controller {
         if (path.equals("/tradings") && method.equals(HttpMethod.GET)) {
             return getAllTradingDeals(request);
         } else if (path.equals("/tradings") && method.equals(HttpMethod.POST)) {
-            return null;
+            return createTradingDeal(request);
         } else if (path.startsWith("/tradings/") && method.equals(HttpMethod.GET)) {
             return null;
         } else if (path.startsWith("/tradings/") && method.equals(HttpMethod.DELETE)) {
@@ -47,12 +48,16 @@ public class TradingController extends Controller {
 
     private Response getAllTradingDeals(Request request) throws JsonProcessingException {
         String header = request.getHeader("authorization");
-        if (header.startsWith("Bearer ")) {
+        if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring("Bearer ".length());
 
             String username = token.split("-")[0];
 
-            List<TradingDealDTO> deals = tradingService.getAllTradingDeals().stream().map(deal -> new TradingDealDTO("" + deal.getId(), deal.getRequestedCardType(), deal.getRequestedCardType(), deal.getRequestedMinDamage())).collect(Collectors.toList());
+            if (!UserService.checkAuth(username, header)) {
+                return new Response(HttpStatus.UNAUTHORIZED, "Access token is missing or invalid");
+            }
+
+            List<TradingDealDTO> deals = tradingService.getAllTradingDeals().stream().map(deal -> new TradingDealDTO("" + deal.getId(), deal.getOfferedCardId(), deal.getRequestedCardType(), deal.getRequestedMinDamage())).collect(Collectors.toList());
             return new Response(HttpStatus.OK, mapper.writeValueAsString(deals));
         } else {
             return new Response(HttpStatus.UNAUTHORIZED, "Access token is missing or invalid");
@@ -61,10 +66,14 @@ public class TradingController extends Controller {
 
     private Response createTradingDeal(Request request) throws JsonProcessingException {
         String header = request.getHeader("authorization");
-        if (header.startsWith("Bearer ")) {
+        if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring("Bearer ".length());
 
             String username = token.split("-")[0];
+
+            if (!UserService.checkAuth(username, header)) {
+                return new Response(HttpStatus.UNAUTHORIZED, "Access token is missing or invalid");
+            }
 
             TradingDealDTO deal = mapper.readValue(request.getBody(), TradingDealDTO.class);
 

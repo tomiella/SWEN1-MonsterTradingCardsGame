@@ -3,6 +3,7 @@ package at.pranjic.application.mtcg.controller;
 import at.pranjic.application.mtcg.dto.CardDTO;
 import at.pranjic.application.mtcg.entity.Card;
 import at.pranjic.application.mtcg.service.CardService;
+import at.pranjic.application.mtcg.service.UserService;
 import at.pranjic.server.http.HttpMethod;
 import at.pranjic.server.http.HttpStatus;
 import at.pranjic.server.http.Request;
@@ -44,15 +45,18 @@ public class CardController extends Controller {
 
     private Response getCards(Request request) throws JsonProcessingException {
         String header = request.getHeader("authorization");
-        if (header.startsWith("Bearer ")) {
+        if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring("Bearer ".length());
 
             String username = token.split("-")[0];
 
+            if (!UserService.checkAuth(username, header)) {
+                return new Response(HttpStatus.UNAUTHORIZED, "Access token is missing or invalid");
+            }
+
             List<CardDTO> cards = cardService.getAllCardsByUserId(username).stream().map(card -> new CardDTO(card.getId(), card.getName(), card.getDamage())).collect(Collectors.toList());
             return new Response(HttpStatus.OK, mapper.writeValueAsString(cards));
-        } else {
-            return new Response(HttpStatus.UNAUTHORIZED, "Access token is missing or invalid");
         }
+        return new Response(HttpStatus.UNAUTHORIZED, "Access token is missing or invalid");
     }
 }

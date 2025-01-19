@@ -46,6 +46,9 @@ public class MonsterTradingCardsGameApplication implements Application {
         TradingRepository tradingRepository = new TradingDbRepository(connectionPool);
         TradingService tradingService = new TradingService(tradingRepository, cardRepository);
 
+        GameRepository gameRepository = new GameDbRepository(connectionPool);
+        GameService gameService = new GameService(userRepository, deckRepository, gameRepository);
+
         Controller userController = new UserController(userService);
         router.addRoute("/users", userController);
         router.addRoute("/sessions", userController);
@@ -66,7 +69,7 @@ public class MonsterTradingCardsGameApplication implements Application {
         Controller scoreboardController = new ScoreboardController(scoreboardService);
         router.addRoute("/scoreboard", scoreboardController);
 
-        Controller gameController = new GameController();
+        Controller gameController = new GameController(gameService);
         router.addRoute("/battles", gameController);
 
         Controller tradingController = new TradingController(tradingService);

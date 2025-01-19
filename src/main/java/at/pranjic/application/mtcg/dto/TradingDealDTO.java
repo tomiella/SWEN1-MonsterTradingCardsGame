@@ -7,7 +7,7 @@ public class TradingDealDTO {
     private String id;
 
     @JsonProperty("CardToTrade")
-    private String cardToTrade;
+    private int cardToTrade;
 
     @JsonProperty("Type")
     private String type;
@@ -17,7 +17,7 @@ public class TradingDealDTO {
 
     public TradingDealDTO() {}
 
-    public TradingDealDTO(String id, String cardToTrade, String type, int minimumDamage) {
+    public TradingDealDTO(String id, int cardToTrade, String type, int minimumDamage) {
         this.id = id;
         this.cardToTrade = cardToTrade;
         this.type = type;
@@ -33,11 +33,11 @@ public class TradingDealDTO {
         this.id = id;
     }
 
-    public String getCardToTrade() {
+    public int getCardToTrade() {
         return cardToTrade;
     }
 
-    public void setCardToTrade(String cardToTrade) {
+    public void setCardToTrade(int cardToTrade) {
         this.cardToTrade = cardToTrade;
     }
 

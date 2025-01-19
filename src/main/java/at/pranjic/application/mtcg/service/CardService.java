@@ -26,7 +26,7 @@ public class CardService {
         return cardRepository.findAllByUserId(user.getId());
     }
 
-    public Optional<Card> getCardById(int cardId) {
+    public Optional<Card> getCardById(String cardId) {
         return cardRepository.findById(cardId);
     }
 

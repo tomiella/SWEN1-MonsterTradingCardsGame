@@ -3,6 +3,8 @@ package at.pranjic.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Server {
     private Application application;
@@ -22,14 +24,15 @@ public class Server {
             throw new RuntimeException(e);
         }
 
-        while (true) {
-            try {
-                Socket socket = this.serverSocket.accept();
-
-                RequestHandler requestHandler = new RequestHandler(socket, this.application);
-                requestHandler.handle();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+        try (ExecutorService threadPool = Executors.newFixedThreadPool(10)) {
+            while (true) {
+                try {
+                    Socket socket = this.serverSocket.accept();
+                    RequestHandler requestHandler = new RequestHandler(socket, application);
+                    threadPool.submit(requestHandler);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }

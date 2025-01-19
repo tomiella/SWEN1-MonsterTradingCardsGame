@@ -2,6 +2,7 @@ package at.pranjic.application.mtcg.controller;
 
 import at.pranjic.application.mtcg.entity.UserStats;
 import at.pranjic.application.mtcg.service.ScoreboardService;
+import at.pranjic.application.mtcg.service.UserService;
 import at.pranjic.server.http.HttpMethod;
 import at.pranjic.server.http.HttpStatus;
 import at.pranjic.server.http.Request;
@@ -38,10 +39,14 @@ public class ScoreboardController extends Controller {
 
     private Response getScoreboard(Request request) throws JsonProcessingException {
         String header = request.getHeader("authorization");
-        if (header.startsWith("Bearer ")) {
+        if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring("Bearer ".length());
 
             String username = token.split("-")[0];
+
+            if (!UserService.checkAuth(username, header)) {
+                return new Response(HttpStatus.UNAUTHORIZED, "Access token is missing or invalid");
+            }
 
             List<UserStats> scoreboard = scoreboardService.getScoreboard();
             return new Response(HttpStatus.OK, mapper.writeValueAsString(scoreboard));

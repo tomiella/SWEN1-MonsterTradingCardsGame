@@ -19,6 +19,15 @@ public class User {
     @JsonIgnore
     private int elo = 100;
 
+    @JsonIgnore
+    private int games_played = 0;
+
+    @JsonIgnore
+    private int wins = 0;
+
+    @JsonIgnore
+    private int losses = 0;
+
     @JsonProperty("Name")
     private String name;
 
@@ -35,6 +44,13 @@ public class User {
     public User(String username, String password) {
         this.username = username;
         this.password = password;
+    }
+
+    public User(String username, String password, String image, String bio) {
+        this.username = username;
+        this.password = password;
+        this.image = image;
+        this.bio = bio;
     }
 
     public String getUsername() {
@@ -99,5 +115,29 @@ public class User {
 
     public void setElo(int elo) {
         this.elo = elo;
+    }
+
+    public int getGames_played() {
+        return games_played;
+    }
+
+    public int getWins() {
+        return wins;
+    }
+
+    public int getLosses() {
+        return losses;
+    }
+
+    public void setGames_played(int games_played) {
+        this.games_played = games_played;
+    }
+
+    public void setWins(int wins) {
+        this.wins = wins;
+    }
+
+    public void setLosses(int losses) {
+        this.losses = losses;
     }
 }

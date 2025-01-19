@@ -16,6 +16,9 @@ CREATE TABLE IF NOT EXISTS users
     id           SERIAL PRIMARY KEY,
     username     VARCHAR(50) UNIQUE NOT NULL,
     password     VARCHAR(255)       NOT NULL,
+    name         VARCHAR(255),
+    bio          VARCHAR(255),
+    image        VARCHAR(255),
     coins        INT DEFAULT 20,
     elo          INT DEFAULT 100,
     games_played INT DEFAULT 0,
@@ -61,13 +64,11 @@ CREATE TABLE IF NOT EXISTS package_cards
 -- Trades table
 CREATE TABLE IF NOT EXISTS tradings
 (
-    id                     SERIAL PRIMARY KEY,
-    offered_card_id        int REFERENCES user_cards (id) ON DELETE CASCADE,
-    requested_card_type    VARCHAR(10) CHECK (requested_card_type IN ('spell', 'monster')),
-    requested_element_type VARCHAR(10) CHECK (requested_element_type IN ('fire', 'water', 'normal')),
-    requested_min_damage   INT     DEFAULT 0,
-    user_id                INT REFERENCES users (id) ON DELETE CASCADE,
-    is_completed           BOOLEAN DEFAULT FALSE
+    id                     SERIAL PRIMARY KEY,                          -- Unique identifier for the trading deal
+    offered_card_id        INT REFERENCES user_cards (id) ON DELETE CASCADE, -- Card offered for trade
+    requested_card_type    VARCHAR(10) CHECK (requested_card_type IN ('spell', 'monster')), -- Required type of received card
+    requested_min_damage   INT DEFAULT 0,                               -- Minimum damage of the card
+    user_id                INT REFERENCES users (id) ON DELETE CASCADE  -- User who created the trade
 );
 
 -- Battles table
